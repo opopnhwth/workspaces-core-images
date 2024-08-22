@@ -5,10 +5,10 @@ FROM $BASE_IMAGE AS base_layer
 ### Environment config
 ARG BG_IMG=bg_kasmos.png
 ARG DISTRO=debian
-ARG LANG='en_US.UTF-8'
-ARG LANGUAGE='en_US:en'
-ARG LC_ALL='en_US.UTF-8'
-ARG TZ='Etc/UTC'
+ARG LANG='zh_CN.UTF-8
+ARG LANGUAGE='zh_CN:cn'
+ARG LC_ALL='zh_CN.UTF-8'
+ARG TZ='Asia/Shanghai'
 ENV DEBIAN_FRONTEND=noninteractive \
     DISTRO=$DISTRO \
     HOME=/home/kasm-default-profile \
@@ -153,7 +153,7 @@ ENV AUDIO_PORT=4901 \
 
 ### Ports and user
 EXPOSE $VNC_PORT \
-       $NO_VNC_PORT \
+       2000 \
 WORKDIR $HOME
 USER 1000
 
