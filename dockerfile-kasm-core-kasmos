@@ -24,14 +24,6 @@ ENV DEBIAN_FRONTEND=noninteractive \
 WORKDIR $HOME
 RUN mkdir -p $HOME/Desktop
 
-### Support NVIDIA gpus for graphics acceleration
-RUN echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf && \
-    echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
-COPY src/ubuntu/install/nvidia/10_nvidia.json /usr/share/glvnd/egl_vendor.d/10_nvidia.json
-
-### Setup package rules
-COPY ./src/ubuntu/install/package_rules $INST_SCRIPTS/package_rules/
-RUN bash $INST_SCRIPTS/package_rules/package_rules.sh && rm -rf $INST_SCRIPTS/package_rules/
 
 ### Install common tools
 COPY ./src/ubuntu/install/tools $INST_SCRIPTS/tools/
@@ -44,11 +36,7 @@ COPY ./src/ubuntu/install/maximize_script $STARTUPDIR/
 COPY ./src/ubuntu/install/fonts $INST_SCRIPTS/fonts/
 RUN bash $INST_SCRIPTS/fonts/install_custom_fonts.sh && rm -rf $INST_SCRIPTS/fonts/
 
-### Install KDE
-COPY ./src/ubuntu/install/kde $INST_SCRIPTS/kde/
-RUN bash $INST_SCRIPTS/kde/install_kde.sh && rm -rf $INST_SCRIPTS/kde/
-COPY ./src/ubuntu/install/kde/desktop_environment_policy.sh $STARTUPDIR/
-COPY ./src/ubuntu/install/kde/auto_start.desktop $HOME/.config/autostart/apply_policy.desktop
+
 
 ### Install kasm_vnc dependencies and binaries
 COPY ./src/ubuntu/install/kasm_vnc $INST_SCRIPTS/kasm_vnc/
@@ -59,9 +47,6 @@ COPY ./src/common/install/kasm_vnc/kasmvnc.yaml /etc/kasmvnc/
 COPY ./src/ubuntu/install/profile_sync $INST_SCRIPTS/profile_sync/
 RUN bash $INST_SCRIPTS/profile_sync/install_profile_sync.sh
 
-### Install Kasm Upload Server
-COPY ./src/ubuntu/install/kasm_upload_server $INST_SCRIPTS/kasm_upload_server/
-RUN bash $INST_SCRIPTS/kasm_upload_server/install_kasm_upload_server.sh  && rm -rf $INST_SCRIPTS/kasm_upload_server/
 
 ### Install custom cursors
 COPY ./src/ubuntu/install/cursors $INST_SCRIPTS/cursors/
@@ -74,32 +59,9 @@ ADD ./src/common/startup_scripts $STARTUPDIR
 RUN bash $STARTUPDIR/set_user_permission.sh $STARTUPDIR $HOME && \
     echo 'source $STARTUPDIR/generate_container_user' >> $HOME/.bashrc
 
-### VirtualGL
-COPY ./src/ubuntu/install/virtualgl $INST_SCRIPTS/virtualgl/
-RUN bash $INST_SCRIPTS/virtualgl/install_virtualgl.sh && rm -rf $INST_SCRIPTS/virtualgl/
 
-### Sysbox support
-COPY ./src/ubuntu/install/sysbox $INST_SCRIPTS/sysbox/
-RUN bash $INST_SCRIPTS/sysbox/install_systemd.sh && rm -rf $INST_SCRIPTS/sysbox/
 
-## Apply KDE theme
-COPY ./kasm-desktop-kde/src /tmp/theme-src
-RUN /tmp/theme-src/install-theme
-COPY ./kasm-desktop-kde/kde-config/.config $HOME/.config
-COPY ./kasm-desktop-kde/kde-config/.local/share/plasma $HOME/.local/share/plasma
 
-### Egress Icons
-RUN mkdir -p /usr/share/extra/icons/
-ADD /src/common/resources/images/egress_info.svg /usr/share/extra/icons/egress_info.svg
-ADD /src/common/resources/images/egress_error.svg /usr/share/extra/icons/egress_error.svg
-ADD /src/common/resources/images/egress_offline.svg /usr/share/extra/icons/egress_offline.svg
-
-## Base Apps
-COPY ./src/kasmos/install/baseapps/ $INST_SCRIPTS/baseapps/
-RUN bash $INST_SCRIPTS/baseapps/install_baseapps.sh \
-    && cp $INST_SCRIPTS/baseapps/*.desktop /usr/share/applications/ \
-    && cp $INST_SCRIPTS/baseapps/notify-send /usr/bin/ \
-    && rm -rf $INST_SCRIPTS/baseapps/
 
 ### Create user and home directory for base images that don't already define it
 RUN (groupadd -g 1000 kasm-user \
@@ -192,7 +154,6 @@ ENV AUDIO_PORT=4901 \
 ### Ports and user
 EXPOSE $VNC_PORT \
        $NO_VNC_PORT \
-       $UPLOAD_PORT \    
 WORKDIR $HOME
 USER 1000
 
