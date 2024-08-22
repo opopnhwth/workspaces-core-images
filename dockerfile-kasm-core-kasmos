@@ -1,6 +1,6 @@
 #### Build Stage ####
 ARG BASE_IMAGE="debian:bookworm-slim"
-FROM $BASE_IMAGE AS base_layer
+FROM $BASE_IMAGE
 
 ### Environment config
 ARG BG_IMG=bg_kasmos.png
@@ -85,28 +85,19 @@ RUN touch $STARTUPDIR/wm.log \
     && find $STARTUPDIR -type f -iname "*.rb" -exec chmod 755 {} \; \
     && find $STARTUPDIR -type f -iname "*.pl" -exec chmod 755 {} \; \
     && find $STARTUPDIR -type f -iname "*.log" -exec chmod 666 {} \; \
-    && chmod 755 $STARTUPDIR/upload_server/kasm_upload_server \
+    
     && chmod 755 $STARTUPDIR/generate_container_user \
-    && chmod +x $STARTUPDIR/jsmpeg/kasm_audio_out-linux \
+    
     && rm -rf $STARTUPDIR/install \
     && mkdir -p $STARTUPDIR/kasmrx/Downloads \
     && chown 1000:1000 $STARTUPDIR/kasmrx/Downloads \
     && chown -R root:root /usr/local/bin \
-    && chown 1000:root /var/run/pulse \
+    
     && rm -Rf /home/kasm-default-profile/.launchpadlib
 
 ### Cleanup job
 COPY ./src/ubuntu/install/cleanup $INST_SCRIPTS/cleanup/
 RUN bash $INST_SCRIPTS/cleanup/cleanup.sh kasmos && rm -rf $INST_SCRIPTS/cleanup/
-
-#### Runtime Stage ####
-FROM scratch
-COPY --from=base_layer / /
-
-### Labels
-LABEL "org.opencontainers.image.authors"='Kasm Tech "info@kasmweb.com"'
-LABEL "com.kasmweb.image"="true"
-LABEL "com.kasmweb.gpu_acceleration_egl"="nvidia"
 
 ### Environment config
 ARG DISTRO=debian
