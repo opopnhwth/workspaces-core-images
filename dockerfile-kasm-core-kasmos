@@ -152,7 +152,7 @@ ENV AUDIO_PORT=4901 \
     TZ=$TZ
 
 ### Ports and user
-EXPOSE $VNC_PORT \
+EXPOSE 3000 \
        2000 \
 WORKDIR $HOME
 USER 1000
