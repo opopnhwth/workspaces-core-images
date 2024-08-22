@@ -5,7 +5,7 @@ FROM $BASE_IMAGE AS base_layer
 ### Environment config
 ARG BG_IMG=bg_kasmos.png
 ARG DISTRO=debian
-ARG LANG='zh_CN.UTF-8
+ARG LANG='zh_CN.UTF-8'
 ARG LANGUAGE='zh_CN:cn'
 ARG LC_ALL='zh_CN.UTF-8'
 ARG TZ='Asia/Shanghai'
